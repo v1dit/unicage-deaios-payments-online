@@ -18,8 +18,26 @@ function listRoutes() {
   }
   console.log("Registered routes:\n" + out.map(r => " - " + r).join("\n"));
 }
+
 app.use(express.json());
-app.use(cors({ origin: "*"}));
+
+const allowedOrigins = [
+  "http://localhost:5173",                 // local dev
+  "https://unicage-dashboard.vercel.app"   // your live frontend
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"],
+}));
+
 listRoutes();
 
 const PORT = process.env.PORT || 3000;
