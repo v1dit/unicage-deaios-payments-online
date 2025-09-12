@@ -21,21 +21,20 @@ function listRoutes() {
 
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://localhost:5173",                 // local dev
-  "https://unicage-dashboard.vercel.app"   // your live frontend
+
+const allowList = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://unicage-dashboard.vercel.app"
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+  origin: (origin, cb) => {
+    if (!origin || allowList.includes(origin)) return cb(null, true);
+    return cb(new Error("Not allowed by CORS"));
   },
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
+  methods: ["GET","POST","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
 }));
 
 listRoutes();
