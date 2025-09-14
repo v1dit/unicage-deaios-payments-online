@@ -139,10 +139,7 @@ app.get("/wallet/history", (_req, res) => {
 import { ethers } from "ethers";
 console.log("Using RPC:", process.env.RPC_URL);
 
-const provider = new ethers.JsonRpcProvider(
-  process.env.RPC_URL,
-  Number(process.env.CHAIN_ID)
-);
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
