@@ -46,8 +46,17 @@ const DEMO_ADDRESS =
   process.env.DEMO_ADDRESS || "0xDEMO000000000000000000000000000000000001";
 
 // --- health + chain ping (you already had these) ---
-app.get("/health", (_req, res) => {
-  res.json({ ok: true, version: "1.0.0", chainId: 9000 });
+app.get("/health", async (_req, res) => {
+  try {
+    const network = await provider.getNetwork();
+    res.json({
+      ok: true,
+      version: "1.0.0",
+      chainId: Number(network.chainId)
+    });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.get("/chain/ping", (_req, res) => {
