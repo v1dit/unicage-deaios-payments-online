@@ -135,7 +135,9 @@ app.get("/wallet/history", (_req, res) => {
 
 // --- payments routes ---
 
+
 import { ethers } from "ethers";
+console.log("Using RPC:", process.env.RPC_URL);
 
 const provider = new ethers.JsonRpcProvider(
   process.env.RPC_URL,
