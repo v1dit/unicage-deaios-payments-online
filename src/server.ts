@@ -134,9 +134,40 @@ app.get("/wallet/history", (_req, res) => {
 });
 
 // --- payments routes ---
-app.post("/pay/initiate", (req, res) => {
-  // you can read req.body.to / req.body.amount here if you want
-  res.json({ txHash: "0xtest123...", status: "pending" });
+
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider(
+  process.env.RPC_URL,
+  Number(process.env.CHAIN_ID)
+);
+
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+
+app.post("/pay/initiate", async (req, res) => {
+  const { to, amount } = req.body;
+
+  // basic validation
+  if (!/^0x[a-fA-F0-9]{40}$/.test(to)) {
+    return res.status(400).json({ ok: false, error: "Invalid recipient address" });
+  }
+
+  try {
+    const value = ethers.parseEther(amount); // "0.1" → wei
+    const tx = await signer.sendTransaction({ to, value });
+    const receipt = await tx.wait();
+
+    return res.json({
+      ok: true,
+      hash: tx.hash,
+      block: receipt?.blockNumber,
+      from: await signer.getAddress(),
+      to,
+      amount
+    });
+  } catch (err: any) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.get("/pay/status", (_req, res) => {
