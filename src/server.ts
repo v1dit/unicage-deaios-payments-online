@@ -46,16 +46,19 @@ const DEMO_ADDRESS =
   process.env.DEMO_ADDRESS || "0xDEMO000000000000000000000000000000000001";
 
 // --- health + chain ping (you already had these) ---
+// Health: shows chain/network + derived address from PRIVATE_KEY
 app.get("/health", async (_req, res) => {
   try {
-    const network = await provider.getNetwork();
+    const net = await provider.getNetwork();
     res.json({
       ok: true,
       version: "1.0.0",
-      chainId: Number(network.chainId)
+      rpc: process.env.RPC_URL ?? "https://evmrpc-testnet.0g.ai",
+      chainId: Number(net.chainId),         // Galileo testnet should be **16601**
+      addressFromPrivateKey: signer.address // must equal 0xABBF...F74e
     });
-  } catch (err: any) {
-    res.status(500).json({ ok: false, error: err.message });
+  } catch (e:any) {
+    res.status(500).json({ ok:false, error: e.message });
   }
 });
 
@@ -68,8 +71,15 @@ app.get("/wallet/demo", (_req, res) => {
   res.json({ address: DEMO_ADDRESS, network: "0g-testnet" });
 });
 
-app.get("/wallet/balance", (_req, res) => {
-  res.json({ address: DEMO_ADDRESS, balance: "0", currency: "OGTEST" });
+// Native 0G balance (not ERC20)
+app.get("/wallet/balance", async (_req, res) => {
+  try {
+    const wei = await provider.getBalance(signer.address);
+    const balance = ethers.formatEther(wei); // e.g. "8.8"
+    res.json({ address: signer.address, balance });
+  } catch (e:any) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get("/wallet/history", (_req, res) => {
