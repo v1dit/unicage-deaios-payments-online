@@ -7,6 +7,10 @@ app.use(express.json());
 
 // ---- Mock endpoints for demo ---- //
 
+app.get("/", (req, res) => {
+  res.send("Unicage Payments Mock API ✅ Live");
+});
+
 app.get("/health", (req, res) => {
   res.json({ status: "ok", network: "0g Galileo (mocked)" });
 });
